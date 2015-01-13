@@ -90,7 +90,8 @@ public class EventsAdapter extends RecyclerView.Adapter {
             User user = presence.getUser();
             eventViewHolder.userText.setText(user.getFirst_name());
             eventViewHolder.switchEvent.setChecked(presence.isPresence());
-            eventViewHolder.switchEvent.setClickable(user.getId() == CurrentUser.getInstance().getId());
+            eventViewHolder.switchEvent.setText(presence.isPresence() ? R.string.yes : R.string.no);
+            eventViewHolder.switchEvent.setEnabled(user.getId() == CurrentUser.getInstance().getId());
         }
     }
 
@@ -135,12 +136,14 @@ public class EventsAdapter extends RecyclerView.Adapter {
 
             switchEvent.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    GhexeRESTClient.getInstance().updatePresence(mContext, ((Presence) mItems.get(getPosition())).getId(), isChecked, new HttpCallback() {
+                public void onCheckedChanged(CompoundButton buttonView, final boolean isChecked) {
+                    final Presence presence = ((Presence) mItems.get(getPosition()));
+                    GhexeRESTClient.getInstance().updatePresence(mContext, presence.getId(), isChecked, new HttpCallback() {
 
                         @Override
                         public void onSuccess(List<Object> resultList) {
-
+                            presence.setIsPresence(isChecked);
+                            switchEvent.setText(presence.isPresence() ? R.string.yes : R.string.no);
                         }
 
                         @Override

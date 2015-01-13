@@ -5,7 +5,7 @@ package com.lorenzobraghetto.ghexe.model;
  */
 public class Presence {
 
-    private final boolean presence;
+    private boolean presence;
     private final int eventId;
     private final int id;
     private final User user;
@@ -31,5 +31,9 @@ public class Presence {
 
     public User getUser() {
         return user;
+    }
+
+    public void setIsPresence(boolean presence) {
+        this.presence = presence;
     }
 }

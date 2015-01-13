@@ -9,6 +9,12 @@
     <string name="action_sign_in">Accedi</string>
     <string name="action_sign_in_short">Sign in</string>
     <string name="login_error">Errore nel login</string>
+    <string name="no">No</string>
+    <string name="yes">Si</string>
+    <string name="notification_true">Hai confermato la tua presenza per %s</string>
+    <string name="notification_false">Non hai confermato la presenza per %s</string>
+    <string name="revert_presence">Inverti la scelta</string>
+    <string name="action_notification">Notifiche</string>
 
     <array name="day_of_week">
         <item>Lunedì</item>

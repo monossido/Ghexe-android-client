@@ -112,7 +112,9 @@ public class GhexeRESTClient {
 
                         @Override
                         public void onSuccess(List<Object> resultList) {
-                            getMe(context, accessToken, refresToken, expiresIn, callback);
+                            getMe(context, CurrentUser.getInstance().getAccess_token(context)
+                                    , CurrentUser.getInstance().getRefresh_token(context)
+                                    , CurrentUser.getInstance().getExpires_in(context), callback);
                         }
 
                         @Override
@@ -127,7 +129,43 @@ public class GhexeRESTClient {
                 JsonObject resultResult = result.getResult();
                 CurrentUser.getInstance().setAuthenticated(context, resultResult.get("id").getAsInt(), resultResult.get("first_name").getAsString(), resultResult.get("second_name").getAsString()
                         , accessToken, refresToken, expiresIn);
+                if (resultResult.get("gcm").isJsonNull() || resultResult.get("gcm").getAsString().equals(CurrentUser.getInstance().getRegistrationId(context)))
+                    postRegistrationId(context.getApplicationContext());
                 callback.onSuccess(null);
+            }
+        });
+    }
+
+    private void postRegistrationId(final Context context) {
+        String url = GhexeParams.ME_URL + "?access_token=" + CurrentUser.getInstance().getAccess_token(context);
+        Log.v("GHEXE", "postRegistrationId url=" + url);
+        JsonObject body = new JsonObject();
+        JsonObject userJson = new JsonObject();
+        userJson.addProperty("gcm", CurrentUser.getInstance().getRegistrationId(context.getApplicationContext()));
+        body.add("user", userJson);
+        Ion.with(context).load("PUT", url).setJsonObjectBody(body).asJsonObject().withResponse().setCallback(new FutureCallback<Response<JsonObject>>() {
+            @Override
+            public void onCompleted(Exception e, Response<JsonObject> result) {
+                Log.v("GHEXE", "postRegistrationId result=" + result);
+                Log.v("GHEXE", "postRegistrationId e=" + e);
+                if (result != null && result.getHeaders().code() == 401) {
+                    refreshToken(context, new HttpCallback() {
+
+                        @Override
+                        public void onSuccess(List<Object> resultList) {
+                            postRegistrationId(context);
+                        }
+
+                        @Override
+                        public void onFailure() {
+
+                        }
+                    });
+                }
+                if(result!=null) {
+                    Log.v("GHEXE", "postRegistrationId result=" + result.getResult());
+                    Log.v("GHEXE", "postRegistrationId e=" + e);
+                }
             }
         });
     }

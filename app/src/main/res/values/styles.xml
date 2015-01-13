@@ -9,7 +9,7 @@
 
         <item name="colorPrimaryDark">@color/cyan_dark
         </item>
-        <item name="colorAccent">@color/blue
+        <item name="colorAccent">@color/cyan
         </item>
     </style>
 

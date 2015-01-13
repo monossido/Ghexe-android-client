@@ -2,6 +2,7 @@ package com.lorenzobraghetto.ghexe.view;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -21,6 +22,7 @@ import com.lorenzobraghetto.ghexe.model.Event;
 import com.lorenzobraghetto.ghexe.model.Presence;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 
@@ -30,6 +32,7 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
     private EventsAdapter adapter;
     private ProgressBar progressBar;
     private SwipeRefreshLayout swipeRefresh;
+    private RecyclerView eventsRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +40,7 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        RecyclerView events = (RecyclerView) findViewById(R.id.recyclerViewEvents);
+        eventsRecyclerView = (RecyclerView) findViewById(R.id.recyclerViewEvents);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipeRefresh);
         swipeRefresh.setColorSchemeColors(Color.RED, Color.GREEN, Color.BLUE, Color.CYAN);
@@ -45,11 +48,11 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
 
         setSupportActionBar(toolbar);
 
-        events.setHasFixedSize(true);
-        events.setLayoutManager(new LinearLayoutManager(this));
+        eventsRecyclerView.setHasFixedSize(true);
+        eventsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new EventsAdapter(this, presences);
-        events.setAdapter(adapter);
-        events.setItemAnimator(new DefaultItemAnimator());
+        eventsRecyclerView.setAdapter(adapter);
+        eventsRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
         progressBar.setVisibility(View.VISIBLE);
         getEvent();
@@ -60,8 +63,10 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
             @Override
             public void onSuccess(List<Object> resultList) {
                 swipeRefresh.setRefreshing(false);
-                adapter.addAllFromZero(explodeList(resultList));
+                List<Object> explodedList = explodeList(resultList);
+                adapter.addAllFromZero(explodedList);
                 progressBar.setVisibility(View.GONE);
+                eventsRecyclerView.scrollToPosition(getPositionFromDay(explodedList));
             }
 
             @Override
@@ -69,6 +74,24 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
 
             }
         });
+    }
+
+    private int getPositionFromDay(List<Object> explodedList) {
+        Calendar calendar = Calendar.getInstance();
+        int day = calendar.get(Calendar.DAY_OF_WEEK);
+        if (day == Calendar.SUNDAY) //Ghexe week start from Monday
+            day = 7;
+        else
+            day--;
+        for (int i = 0; i < explodedList.size(); i++) {
+            Object event = explodedList.get(i);
+            if (event instanceof Event) {
+                if (((Event) event).getDayofweek() == day - 1) //Ghexe day of week start from 0
+                    return i;
+            }
+
+        }
+        return 0;
     }
 
     private List<Object> explodeList(List<Object> resultList) {
@@ -89,6 +112,8 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        MenuItem item = menu.findItem(R.id.action_notification);
+        item.setChecked(PreferenceManager.getDefaultSharedPreferences(this).getBoolean("notification", true));
         return true;
     }
 
@@ -100,8 +125,9 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.action_notification) {
+            PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("notification", !item.isChecked()).commit();
+            item.setChecked(!item.isChecked());
         }
 
         return super.onOptionsItemSelected(item);
