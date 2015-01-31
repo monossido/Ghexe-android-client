@@ -16,6 +16,7 @@ import android.widget.ProgressBar;
 
 import com.lorenzobraghetto.ghexe.R;
 import com.lorenzobraghetto.ghexe.adapters.EventsAdapter;
+import com.lorenzobraghetto.ghexe.controller.CurrentUser;
 import com.lorenzobraghetto.ghexe.controller.GhexeRESTClient;
 import com.lorenzobraghetto.ghexe.controller.HttpCallback;
 import com.lorenzobraghetto.ghexe.model.Event;
@@ -59,7 +60,7 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
     }
 
     private void getEvent() {
-        GhexeRESTClient.getInstance().getEvents(MainActivity.this, new HttpCallback() {
+        GhexeRESTClient.getInstance(this).getEvents(MainActivity.this, new HttpCallback() {
             @Override
             public void onSuccess(List<Object> resultList) {
                 swipeRefresh.setRefreshing(false);
@@ -124,12 +125,17 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_notification) {
-            PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("notification", !item.isChecked()).commit();
-            item.setChecked(!item.isChecked());
+        switch (id) {
+            case R.id.action_notification:
+                PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("notification", !item.isChecked()).commit();
+                item.setChecked(!item.isChecked());
+                break;
+            case R.id.action_logout:
+                PreferenceManager.getDefaultSharedPreferences(this).edit().clear().commit();
+                CurrentUser.getInstance().logout();
+                finish();
+                break;
         }
-
         return super.onOptionsItemSelected(item);
     }
 

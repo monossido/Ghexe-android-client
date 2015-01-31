@@ -13,8 +13,12 @@
     <string name="yes">Si</string>
     <string name="notification_true">Hai confermato la tua presenza per %s</string>
     <string name="notification_false">Non hai confermato la presenza per %s</string>
+    <string formatted="false" name="notification_onuserchange_true">%s ha appena confermato la sua presenza per %s</string>
+    <string formatted="false" name="notification_onuserchange_false">%s ha appena confermato la sua assenza per %s</string>
     <string name="revert_presence">Inverti la scelta</string>
     <string name="action_notification">Notifiche</string>
+    <string name="error_presence">Errore nell\'aggiornare la presenza</string>
+    <string name="action_logout">Esci</string>
 
     <array name="day_of_week">
         <item>Lunedì</item>

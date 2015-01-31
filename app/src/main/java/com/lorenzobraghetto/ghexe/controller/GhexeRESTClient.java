@@ -22,10 +22,16 @@ public class GhexeRESTClient {
 
     private static GhexeRESTClient instance;
 
-    public static GhexeRESTClient getInstance() {
-        if (instance != null)
-            return instance;
-        else return new GhexeRESTClient();
+    public static GhexeRESTClient getInstance(Context context) {
+        if (instance == null)
+            instance = new GhexeRESTClient(context);
+        return instance;
+    }
+
+    private GhexeRESTClient(Context context) {
+        CurrentUser user = CurrentUser.getInstance();
+        if (user.getId() == -1)
+            getMe(context, user.getAccess_token(context), user.getRefresh_token(context), user.getExpires_in(context), null);
     }
 
     public void postAuthenticate(final Context context, final String first_name, String password, final HttpCallback callback) {
@@ -119,7 +125,8 @@ public class GhexeRESTClient {
 
                         @Override
                         public void onFailure() {
-                            callback.onFailure();
+                            if (callback != null)
+                                callback.onFailure();
                         }
                     });
                     return;
@@ -129,9 +136,10 @@ public class GhexeRESTClient {
                 JsonObject resultResult = result.getResult();
                 CurrentUser.getInstance().setAuthenticated(context, resultResult.get("id").getAsInt(), resultResult.get("first_name").getAsString(), resultResult.get("second_name").getAsString()
                         , accessToken, refresToken, expiresIn);
-                if (resultResult.get("gcm").isJsonNull() || resultResult.get("gcm").getAsString().equals(CurrentUser.getInstance().getRegistrationId(context)))
+                if (resultResult.get("gcm").isJsonNull() || !resultResult.get("gcm").getAsString().equals(CurrentUser.getInstance().getRegistrationId(context)))
                     postRegistrationId(context.getApplicationContext());
-                callback.onSuccess(null);
+                if (callback != null)
+                    callback.onSuccess(null);
             }
         });
     }
@@ -162,7 +170,7 @@ public class GhexeRESTClient {
                         }
                     });
                 }
-                if(result!=null) {
+                if (result != null) {
                     Log.v("GHEXE", "postRegistrationId result=" + result.getResult());
                     Log.v("GHEXE", "postRegistrationId e=" + e);
                 }
@@ -257,12 +265,12 @@ public class GhexeRESTClient {
     }
 
 
-    public void updatePresence(Context context, int id, boolean presence, final HttpCallback callback) {
+    public void updatePresence(final Context context, final int id, final boolean presence, final HttpCallback callback) {
         JsonObject json = new JsonObject();
         JsonObject jsonPresence = new JsonObject();
         jsonPresence.addProperty("presence", presence);
         json.add("presence", jsonPresence);
-        Log.v("GHEXE", "json=" + json);
+        Log.v("GHEXE", "updatePresence json=" + json);
         String url = GhexeParams.PRESENCES_URL + "/" + id + "?access_token=" + CurrentUser.getInstance().getAccess_token(context);
         Ion.with(context).load("PUT", url)
                 .setJsonObjectBody(json)
@@ -271,6 +279,21 @@ public class GhexeRESTClient {
                     @Override
                     public void onCompleted(Exception e, Response<JsonObject> result) {
                         Log.v("GHEXE", "result=" + result.getResult());
+                        if (result != null && result.getHeaders().code() == 401) {
+                            refreshToken(context, new HttpCallback() {
+
+                                @Override
+                                public void onSuccess(List<Object> resultList) {
+                                    updatePresence(context, id, presence, callback);
+                                }
+
+                                @Override
+                                public void onFailure() {
+
+                                }
+                            });
+                            return;
+                        }
                         callback.onSuccess(null);
                     }
                 });

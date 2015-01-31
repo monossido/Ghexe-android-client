@@ -8,8 +8,6 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import java.io.IOException;
@@ -22,9 +20,9 @@ public class CurrentUser {
     private static CurrentUser instance;
     private String second_name;
     private String first_name;
-    private int id;
+    private int id = -1;
 
-    private static final String SENDER_ID = "1039215285235";
+    private static final String SENDER_ID = "";
 
     public static CurrentUser getInstance() {
         if (instance == null)
@@ -40,7 +38,7 @@ public class CurrentUser {
     }
 
     public String getRegistrationId(Context context) {
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        final SharedPreferences prefs = context.getSharedPreferences("google_appid", Context.MODE_PRIVATE);
         String registrationId = prefs.getString("reg_id", "");
         if (registrationId.isEmpty()) {
             Log.i("GHEXE", "Registration not found.");
@@ -77,7 +75,7 @@ public class CurrentUser {
     private void storeRegistrationId(Context context, String regId) {
         Log.v("GHEXE", "storeRegistrationId, regid=" + regId);
 
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        final SharedPreferences prefs = context.getSharedPreferences("google_appid", Context.MODE_PRIVATE);
         int appVersion = getAppVersion(context);
         Log.i("GHEXE", "Saving regId on app version " + appVersion);
         SharedPreferences.Editor editor = prefs.edit();
@@ -143,5 +141,9 @@ public class CurrentUser {
     public String getRefresh_token(Context context) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
         return pref.getString("refresh_token", "");
+    }
+
+    public void logout() {
+        instance = null;
     }
 }

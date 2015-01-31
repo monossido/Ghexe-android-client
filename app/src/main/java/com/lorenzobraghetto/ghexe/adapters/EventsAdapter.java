@@ -6,7 +6,7 @@ import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.lorenzobraghetto.ghexe.R;
@@ -127,23 +127,28 @@ public class EventsAdapter extends RecyclerView.Adapter {
 
         TextView userText;
         SwitchCompat switchEvent;
+        ProgressBar progressEvent;
 
         public EventViewHolder(View view) {
             super(view);
 
             userText = (TextView) view.findViewById(R.id.userText);
             switchEvent = (SwitchCompat) view.findViewById(R.id.switchEvent);
+            progressEvent = (ProgressBar) view.findViewById(R.id.progressEvent);
 
-            switchEvent.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            switchEvent.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onCheckedChanged(CompoundButton buttonView, final boolean isChecked) {
+                public void onClick(View v) {
+                    progressEvent.setVisibility(View.VISIBLE);
+                    switchEvent.setText("");
                     final Presence presence = ((Presence) mItems.get(getPosition()));
-                    GhexeRESTClient.getInstance().updatePresence(mContext, presence.getId(), isChecked, new HttpCallback() {
+                    GhexeRESTClient.getInstance(mContext).updatePresence(mContext, presence.getId(), switchEvent.isChecked(), new HttpCallback() {
 
                         @Override
                         public void onSuccess(List<Object> resultList) {
-                            presence.setIsPresence(isChecked);
+                            presence.setIsPresence(switchEvent.isChecked());
                             switchEvent.setText(presence.isPresence() ? R.string.yes : R.string.no);
+                            progressEvent.setVisibility(View.GONE);
                         }
 
                         @Override

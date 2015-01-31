@@ -14,6 +14,13 @@
         android:layout_height="wrap_content"
         android:id="@+id/userText" />
 
+
+    <ProgressBar
+        android:id="@+id/progressEvent"
+        android:layout_width="20dp"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
     <android.support.v7.widget.SwitchCompat
         android:id="@+id/switchEvent"
         android:layout_weight="1"
