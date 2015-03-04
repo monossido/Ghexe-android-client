@@ -22,16 +22,13 @@ public class GhexeRESTClient {
 
     private static GhexeRESTClient instance;
 
-    public static GhexeRESTClient getInstance(Context context) {
+    public static GhexeRESTClient getInstance() {
         if (instance == null)
-            instance = new GhexeRESTClient(context);
+            instance = new GhexeRESTClient();
         return instance;
     }
 
-    private GhexeRESTClient(Context context) {
-        CurrentUser user = CurrentUser.getInstance();
-        if (user.getId() == -1)
-            getMe(context, user.getAccess_token(context), user.getRefresh_token(context), user.getExpires_in(context), null);
+    private GhexeRESTClient() {
     }
 
     public void postAuthenticate(final Context context, final String first_name, String password, final HttpCallback callback) {

@@ -142,7 +142,7 @@ public class EventsAdapter extends RecyclerView.Adapter {
                     progressEvent.setVisibility(View.VISIBLE);
                     switchEvent.setText("");
                     final Presence presence = ((Presence) mItems.get(getPosition()));
-                    GhexeRESTClient.getInstance(mContext).updatePresence(mContext, presence.getId(), switchEvent.isChecked(), new HttpCallback() {
+                    GhexeRESTClient.getInstance().updatePresence(mContext, presence.getId(), switchEvent.isChecked(), new HttpCallback() {
 
                         @Override
                         public void onSuccess(List<Object> resultList) {

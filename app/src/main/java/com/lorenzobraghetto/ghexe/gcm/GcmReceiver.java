@@ -20,7 +20,6 @@ import java.util.List;
 public class GcmReceiver extends BroadcastReceiver {
 
     private final static String REVERT_PRESENCE = "INTENT_GHEXE_REVERT_PRESENCE";
-    private static NotificationManager mNotificationManager;
     private final static int NOTIF_ID_ONREMINDER = 12345;
     private static int NOTIF_ID_ONUSERCHANGE = 0;
 
@@ -36,7 +35,7 @@ public class GcmReceiver extends BroadcastReceiver {
             boolean presence = Boolean.parseBoolean(extras.getString("presence"));
             String type = extras.getString("type");
 
-            mNotificationManager = (NotificationManager)
+            NotificationManager mNotificationManager = (NotificationManager)
                     context.getSystemService(Context.NOTIFICATION_SERVICE);
 
             PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
@@ -88,8 +87,10 @@ public class GcmReceiver extends BroadcastReceiver {
     public static class RevertReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(final Context context, final Intent intent) {
+            NotificationManager mNotificationManager = (NotificationManager)
+                    context.getSystemService(Context.NOTIFICATION_SERVICE);
             mNotificationManager.cancel(NOTIF_ID_ONREMINDER);
-            GhexeRESTClient.getInstance(context).updatePresence(context, intent.getIntExtra("presence_id", -1), !intent.getBooleanExtra("presence", true), new HttpCallback() {
+            GhexeRESTClient.getInstance().updatePresence(context, intent.getIntExtra("presence_id", -1), !intent.getBooleanExtra("presence", true), new HttpCallback() {
 
                 @Override
                 public void onSuccess(List<Object> resultList) {

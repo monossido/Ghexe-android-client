@@ -56,11 +56,26 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
         eventsRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
         progressBar.setVisibility(View.VISIBLE);
-        getEvent();
+        CurrentUser user = CurrentUser.getInstance();
+        if (user.getId() == -1)
+            GhexeRESTClient.getInstance().getMe(this, user.getAccess_token(this), user.getRefresh_token(this), user.getExpires_in(this), new HttpCallback() {
+
+                @Override
+                public void onSuccess(List<Object> resultList) {
+                    getEvent();
+                }
+
+                @Override
+                public void onFailure() {
+
+                }
+            });
+        else
+            getEvent();
     }
 
     private void getEvent() {
-        GhexeRESTClient.getInstance(this).getEvents(MainActivity.this, new HttpCallback() {
+        GhexeRESTClient.getInstance().getEvents(MainActivity.this, new HttpCallback() {
             @Override
             public void onSuccess(List<Object> resultList) {
                 swipeRefresh.setRefreshing(false);

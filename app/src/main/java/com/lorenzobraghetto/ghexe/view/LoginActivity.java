@@ -44,14 +44,14 @@ public class LoginActivity extends ActionBarActivity {
             public void onClick(View v) {
                 login_progress.setVisibility(View.VISIBLE);
                 login_form.setVisibility(View.GONE);
-                GhexeRESTClient.getInstance(LoginActivity.this).postAuthenticate(LoginActivity.this, nomeEdit.getText().toString(), passwordEdit.getText().toString(), callback);
+                GhexeRESTClient.getInstance().postAuthenticate(LoginActivity.this, nomeEdit.getText().toString(), passwordEdit.getText().toString(), callback);
             }
         });
 
         if (CurrentUser.getInstance().getAccess_token(this).length() > 0) {
             login_progress.setVisibility(View.VISIBLE);
             login_form.setVisibility(View.GONE);
-            GhexeRESTClient.getInstance(this).getMe(this
+            GhexeRESTClient.getInstance().getMe(this
                     , CurrentUser.getInstance().getAccess_token(this)
                     , CurrentUser.getInstance().getRefresh_token(this)
                     , CurrentUser.getInstance().getExpires_in(this)

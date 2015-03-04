@@ -8,8 +8,8 @@ android {
         applicationId "com.lorenzobraghetto.ghexe"
         minSdkVersion 9
         targetSdkVersion 21
-        versionCode 4
-        versionName "0.3.1"
+        versionCode 6
+        versionName "0.3.3"
     }
     buildTypes {
         release {
